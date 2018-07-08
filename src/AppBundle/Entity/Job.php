@@ -3,7 +3,7 @@ namespace AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
-
+use AppBundle\Utils\Jobeet;
 /**
  * @ORM\Entity()
  * @ORM\Table(name="job")
@@ -528,4 +528,20 @@ class Job {
     {
         $this->updatedAt = new \DateTime();
     }
+
+    // Template functions
+    public function getCompanySlug()
+    {
+        return Jobeet::slugify($this->getCompany());
+    }
+ 
+    public function getPositionSlug()
+    {
+        return Jobeet::slugify($this->getPosition());
+    }
+ 
+    public function getLocationSlug()
+    {
+        return Jobeet::slugify($this->getLocation());
+    }    
 }
