@@ -8,6 +8,7 @@ use AppBundle\Utils\Jobeet;
  * @ORM\Entity()
  * @ORM\Table(name="job")
  * @ORM\HasLifecycleCallbacks()
+ * @ORM\Entity(repositoryClass="AppBundle\Entity\JobRepository")
  */
 class Job {
 
@@ -527,6 +528,17 @@ class Job {
     public function setUpdatedAtValue()
     {
         $this->updatedAt = new \DateTime();
+    }
+
+    /**
+     * @ORM\PrePersist
+     */
+    public function setExpiresAtValue()
+    {
+        if (!$this->getExpiresAt()) {
+            $now = $this->getCreatedAt() ? $this->getCreatedAt()->format('U') : time();
+            $this->expiresAt = new \DateTime(date('Y-m-d H:i:s', $now + 86400 * 30));
+        }
     }
 
     // Template functions
