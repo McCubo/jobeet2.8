@@ -25,6 +25,10 @@ class JobController extends Controller
         $em = $this->getDoctrine()->getManager();        
         $categories = $em->getRepository('AppBundle:Category')->getWithJobs();
         foreach ($categories as $category) {
+            $category->setMoreJobs(
+                $em->getRepository('AppBundle:Job')->countActiveJobs($category->getId()) 
+                - $this->container->getParameter('max_jobs_on_homepage'));
+
             $category->setActiveJobs(
                 $em->getRepository('AppBundle:Job')->getActiveJobs($category->getId(), 
                 $this->container->getParameter('max_jobs_on_homepage')));

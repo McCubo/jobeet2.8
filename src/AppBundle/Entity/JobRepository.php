@@ -9,7 +9,7 @@ namespace AppBundle\Entity;
 class JobRepository extends \Doctrine\ORM\EntityRepository
 {
 
-    public function getActiveJobs($category_id = null, $max = null)
+    public function getActiveJobs($category_id = null, $max = null, $offset = null)
     {
         $qb = $this->createQueryBuilder('j')
             ->where('j.expiresAt > :date')
@@ -20,6 +20,9 @@ class JobRepository extends \Doctrine\ORM\EntityRepository
 	    {
 	        $qb->setMaxResults($max);
 	    }
+	    if($offset) {
+	        $qb->setFirstResult($offset);
+	    }	    
         if($category_id)
         {
             $qb->andWhere('j.category = :category_id')
@@ -47,4 +50,20 @@ class JobRepository extends \Doctrine\ORM\EntityRepository
 	    }
 	    return $job;
 	}
+
+	public function countActiveJobs($category_id = null)
+	{
+	    $qb = $this->createQueryBuilder('j')
+	        ->select('count(j.id)')
+	        ->where('j.expiresAt > :date')
+	        ->setParameter('date', date('Y-m-d H:i:s', time()));
+	    if($category_id)
+	    {
+	        $qb->andWhere('j.category = :category_id')
+	           ->setParameter('category_id', $category_id);
+	    }
+	    $query = $qb->getQuery();
+	    
+	    return $query->getSingleScalarResult();
+	}	
 }
