@@ -29,6 +29,7 @@ class Job {
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank()
+     * @Assert\Choice(callback="getTypeValues")
      */
     private $type;
 
@@ -40,13 +41,12 @@ class Job {
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Assert\NotBlank()
+     * @Assert\Image()
      */
     private $logo;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Assert\NotBlank()
      */
     private $url;
 
@@ -76,7 +76,6 @@ class Job {
 
     /**
      * @ORM\Column(type="string", length=255, unique=true)
-     * @Assert\NotBlank()
      */
     private $token;
 
@@ -93,24 +92,22 @@ class Job {
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank()
+     * @Assert\Email()
      */
     private $email;
 
     /**
      * @ORM\Column(type="datetime")
-     * @Assert\NotBlank()
      */
     private $expiresAt;
 
     /**
      * @ORM\Column(type="datetime")
-     * @Assert\NotBlank()
      */
     private $createdAt;
 
     /**
      * @ORM\Column(type="datetime")
-     * @Assert\NotBlank()
      */
     private $updatedAt;
 
@@ -541,6 +538,20 @@ class Job {
         }
     }
 
+    /**
+    * @ORM\PrePersist
+    */
+    public function setTokenValue() {
+        if (!$this->getToken()) {
+            $this->token = sha1($this->getEmail().rand(11111, 99999));
+        }
+    }
+
+    public function publish()
+    {
+        $this->setIsActivated(true);
+    }
+    
     // Template functions
     public function getCompanySlug()
     {
@@ -555,5 +566,26 @@ class Job {
     public function getLocationSlug()
     {
         return Jobeet::slugify($this->getLocation());
+    }
+
+    public static function getTypes() {
+        return array('full-time' => 'Full time', 'part-time' => 'Part time', 'freelance' => 'Freelance');
+    }
+
+    public static function getTypeValues() {
+        return array_keys(self::getTypes());
+    }
+
+    public function isExpired()
+    {
+        return $this->getDaysBeforeExpires() < 0;
+    }
+    public function expiresSoon()
+    {
+        return $this->getDaysBeforeExpires() < 15;
+    }
+    public function getDaysBeforeExpires()
+    {
+        return ceil(($this->getExpiresAt()->format('U') - time()) / 86400);
     }    
 }

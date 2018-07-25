@@ -9,12 +9,14 @@ namespace AppBundle\Entity;
 class JobRepository extends \Doctrine\ORM\EntityRepository
 {
 
-    public function getActiveJobs($category_id = null, $max = null, $offset = null)
-    {
-        $qb = $this->createQueryBuilder('j')
-            ->where('j.expiresAt > :date')
-            ->setParameter('date', date('Y-m-d H:i:s', time()))
-            ->orderBy('j.expiresAt', 'DESC');
+	public function getActiveJobs($category_id = null, $max = null, $offset = null)
+	{
+	    $qb = $this->createQueryBuilder('j')
+	        ->where('j.expiresAt > :date')
+	        ->setParameter('date', date('Y-m-d H:i:s', time()))
+	        ->andWhere('j.isActivated = :activated')
+	        ->setParameter('activated', 1)
+	        ->orderBy('j.expiresAt', 'DESC');
 
 	    if($max)
 	    {
@@ -22,17 +24,17 @@ class JobRepository extends \Doctrine\ORM\EntityRepository
 	    }
 	    if($offset) {
 	        $qb->setFirstResult($offset);
-	    }	    
-        if($category_id)
-        {
-            $qb->andWhere('j.category = :category_id')
-                ->setParameter('category_id', $category_id);
-        }
+	    }
+	    if($category_id)
+	    {
+	        $qb->andWhere('j.category = :category_id')
+	           ->setParameter('category_id', $category_id);
+	    }
 
-        $query = $qb->getQuery();
+	    $query = $qb->getQuery();
 
-        return $query->getResult();
-    }
+	    return $query->getResult();
+	}
 
 	public function getActiveJob($id)
 	{
@@ -41,13 +43,17 @@ class JobRepository extends \Doctrine\ORM\EntityRepository
 	        ->setParameter('id', $id)
 	        ->andWhere('j.expiresAt > :date')
 	        ->setParameter('date', date('Y-m-d H:i:s', time()))
+	        ->andWhere('j.isActivated = :activated')
+	        ->setParameter('activated', 1)
 	        ->setMaxResults(1)
 	        ->getQuery();
+
 	    try {
 	        $job = $query->getSingleResult();
 	    } catch (\Doctrine\Orm\NoResultException $e) {
 	        $job = null;
 	    }
+
 	    return $job;
 	}
 
@@ -56,14 +62,19 @@ class JobRepository extends \Doctrine\ORM\EntityRepository
 	    $qb = $this->createQueryBuilder('j')
 	        ->select('count(j.id)')
 	        ->where('j.expiresAt > :date')
-	        ->setParameter('date', date('Y-m-d H:i:s', time()));
+	        ->setParameter('date', date('Y-m-d H:i:s', time()))
+	        ->andWhere('j.isActivated = :activated')
+	        ->setParameter('activated', 1);
+
 	    if($category_id)
 	    {
 	        $qb->andWhere('j.category = :category_id')
 	           ->setParameter('category_id', $category_id);
 	    }
+
 	    $query = $qb->getQuery();
-	    
+
 	    return $query->getSingleScalarResult();
-	}	
+	}
+
 }
