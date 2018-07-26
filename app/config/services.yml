@@ -24,6 +24,6 @@ services:
 
   app.admin.job:
     class: AppBundle\Admin\JobAdmin
-    arguments: [~, AppBundle\Entity\Job, ~]
+    arguments: [~, AppBundle\Entity\Job, AppBundle:JobAdmin]
     tags:
       - { name: sonata.admin, manager_type: orm, group: Jobeet, label: Jobs }
