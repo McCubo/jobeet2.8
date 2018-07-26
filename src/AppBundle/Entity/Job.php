@@ -41,7 +41,6 @@ class Job {
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Assert\Image()
      */
     private $logo;
 
@@ -110,6 +109,23 @@ class Job {
      * @ORM\Column(type="datetime")
      */
     private $updatedAt;
+
+    private $file;
+
+    public function getFile()
+    {
+        return $this->file;
+    }
+        
+    public function setFile($file)
+    {
+        $this->file = $file;
+        if($file) {
+            // we need to change the logo to let Doctrine know our Job object has changed;
+            // that's because Doctrine does not monitor the $file property
+            $this->logo = md5(uniqid()).'.'.$file->guessExtension();
+        }
+    }
 
     /**
      * Get id

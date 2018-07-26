@@ -29,11 +29,12 @@ class JobUploadListener {
         if (!$entity instanceof Job) {
             return;
         }
-        $file = $entity->getLogo();
+        $file = $entity->getFile();
         if (!$file instanceof UploadedFile) {
             return;
         }
         $fileName = $this->uploader->upload($file);
+        $entity->setFile(null);
         $entity->setLogo($fileName);
     }
 

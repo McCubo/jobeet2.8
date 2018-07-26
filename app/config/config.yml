@@ -11,9 +11,18 @@ parameters:
     max_jobs_on_category: 5
     jobs_directory: '%kernel.root_dir%/../web/uploads/jobs'
 
+sonata_admin:
+    title: Jobeet Admin
+sonata_block:
+    default_contexts: [cms]
+    blocks:
+        # enable the SonataAdminBundle block
+        sonata.admin.block.admin_list:
+            contexts: [admin]
+
 framework:
     #esi: ~
-    #translator: { fallbacks: ['%locale%'] }
+    translator: { fallbacks: ['%locale%'] }
     secret: '%secret%'
     router:
         resource: '%kernel.root_dir%/config/routing.yml'
